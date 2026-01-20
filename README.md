@@ -75,6 +75,48 @@ docker-compose run --rm backend bundle exec rspec
 
 ---
 
+## 📍 Endpoints da API
+
+A API segue o padrão RESTful e está versionada sob o prefixo `/api/v1`.
+
+| Método | Endpoint | Descrição | Parâmetros |
+| --- | --- | --- | --- |
+| **GET** | `/api/v1/imports` | Lista os datasets importados | `page` (opcional) |
+| **POST** | `/api/v1/imports` | Upload de novo CSV | `file` (multipart/form-data) |
+| **GET** | `/api/v1/imports/:id` | Dashboard e Insights (EDA) | `id` (path) |
+
+---
+
+## 📖 Documentação da API (Swagger)
+
+A documentação interativa está disponível via **Swagger UI**. Nela, você pode visualizar os esquemas de dados e testar as requisições diretamente pelo navegador.
+
+🔗 **Link de Acesso:** [http://localhost:3000/api-docs](https://www.google.com/search?q=http://localhost:3000/api-docs)
+
+### Como atualizar o Swagger
+
+Caso novas rotas sejam adicionadas ou os contratos de resposta mudem, a documentação deve ser regenerada com o comando:
+
+```bash
+docker-compose run --rm backend bundle exec rails rswag:specs:swaggerize
+
+```
+
+---
+
+## 🏗️ Estrutura de Resposta (Dashboard)
+
+Ao acessar o endpoint de visualização (`/api/v1/imports/:id`), a API retorna um objeto estruturado contendo:
+
+* **info:** Metadados do arquivo.
+* **summary:** KPIs globais (eNPS e Favorabilidade).
+* **eda:** Estatísticas descritivas (Média, Mediana e Moda).
+* **ai_insights:** Análise preditiva e plano de ação sugerido.
+* **sentiment_analysis:** Distribuição semântica dos comentários.
+
+---
+
+
 ## 💡 Decisões de Arquitetura
 
 1. **Separação de Preocupações:** Utilizamos **Serializers** para garantir que o Frontend receba dados prontos para exibição (ex: Enums já traduzidos e datas formatadas), mantendo o Controller limpo.
