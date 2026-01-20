@@ -1,0 +1,36 @@
+pt-BR:
+  imports:
+    errors:
+      no_file: "Nenhum arquivo enviado"
+      import_failed: "Falha na importação: %{message}"
+      not_found: "Dataset não encontrado"
+    messages:
+      success: "Importação concluída com sucesso"
+  enums:
+    area:
+      administrative: "Administrativo"
+      commercial: "Comercial"
+      financial: "Financeiro"
+      human_resources: "Recursos Humanos"
+      technology: "Tecnologia"
+    cargo:
+      intern: "Estagiário"
+      analyst: "Analista"
+      coordinator: "Coordenador"
+      manager: "Gerente"
+    funcao:
+      professional: "Profissional"
+      manager: "Gestor"
+    genero:
+      male: "Masculino"
+      female: "Feminino"
+      other: "Outro"
+    geracao:
+      geracao_z: "Geração Z"
+      geracao_y: "Geração Y"
+      geracao_x: "Geração X"
+    tempo_de_empresa:
+      less_than_1_year: "Menos de 1 ano"
+      between_1_and_2_years: "Entre 1 e 2 anos"
+      between_2_and_5_years: "Entre 2 e 5 anos"
+      more_than_5_years: "Mais de 5 anos"

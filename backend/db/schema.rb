@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_20_004826) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_20_025550) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -50,6 +50,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_20_004826) do
     t.text "enps_aberta"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "import_file_id", null: false
+    t.index ["import_file_id"], name: "index_employee_feedbacks_on_import_file_id"
   end
 
+  create_table "import_files", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_foreign_key "employee_feedbacks", "import_files"
 end

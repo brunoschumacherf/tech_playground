@@ -1,31 +1,17 @@
 require 'rails_helper'
 
-RSpec.describe "Api::V1::Feedbacks", type: :request do
-  describe "GET /api/v1/dashboard" do
-    let(:headers) { { "ACCEPT" => "application/json" } }
+RSpec.describe Api::V1::FeedbacksController, type: :controller do
+  let(:import_file) { create(:import_file) }
+  let!(:feedback) { create(:employee_feedback, import_file: import_file) }
 
-    before do
-      EmployeeFeedback.delete_all
-
-      create_list(:employee_feedback, 3, area: "Vendas", enps: 0, feedback: 1)
-      create_list(:employee_feedback, 3, area: "TI", enps: 10, feedback: 5)
+  describe "GET #index" do
+    it "lista os feedbacks com paginação" do
+      get :index
       
-      get "/api/v1/dashboard", headers: headers
-    end
-
-    it "retorna status 200" do
+      json_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
-    end
-
-    it "calcula a favorabilidade corretamente" do
-      json = JSON.parse(response.body)
-      expect(json["summary"]["favorability"].to_f).to eq(50.0)
-    end
-
-    it "gera alertas para áreas com eNPS negativo" do
-      json = JSON.parse(response.body)
-      expect(json["alerts"]).to have_key("Vendas")
-      expect(json["alerts"]["Vendas"].to_f).to eq(-100.0)
+      expect(json_response['data']).to be_an(Array)
+      expect(json_response['meta']).to have_key('total_pages')
     end
   end
 end

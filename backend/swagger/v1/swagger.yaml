@@ -1,0 +1,127 @@
+---
+openapi: 3.0.1
+info:
+  title: People Analytics API - Bruno
+  version: v1
+  description: Documentação dos endpoints de Importação e Dashboards
+paths:
+  "/api/v1/imports":
+    get:
+      summary: Listar datasets
+      tags:
+      - Imports
+      parameters:
+      - name: page
+        in: query
+        description: Número da página
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                        created_at:
+                          type: string
+                          format: date-time
+                        feedbacks_count:
+                          type: integer
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                      total_count:
+                        type: integer
+    post:
+      summary: Upload de CSV
+      tags:
+      - Imports
+      parameters: []
+      responses:
+        '201':
+          description: Criado
+        '400':
+          description: Arquivo ausente
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: file
+        required: true
+        description: Arquivo CSV
+  "/api/v1/imports/{id}":
+    parameters:
+    - name: id
+      in: path
+      description: ID do Dataset
+      required: true
+      schema:
+        type: string
+    get:
+      summary: Visualizar Dashboard
+      tags:
+      - Imports
+      responses:
+        '200':
+          description: Sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  info:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                  summary:
+                    type: object
+                    properties:
+                      total_responses:
+                        type: integer
+                      enps_score:
+                        type: number
+                      favorability:
+                        type: number
+                  by_area:
+                    type: object
+                    additionalProperties:
+                      type: number
+                  sentiment_analysis:
+                    type: object
+                    properties:
+                      positive:
+                        type: integer
+                      neutral:
+                        type: integer
+                      negative:
+                        type: integer
+                  alerts:
+                    type: object
+                    additionalProperties:
+                      type: number
+        '404':
+          description: Dataset não encontrado
+servers:
+- url: http://localhost:3000
+  description: Servidor Local (Docker)

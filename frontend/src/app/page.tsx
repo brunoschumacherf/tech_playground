@@ -1,72 +1,92 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { Users, TrendingUp, Activity, MessageSquare } from 'lucide-react'
-import { api } from '@/services/api'
-import { DashboardData } from '@/types/dashboard'
-import StatCard from '@/components/StatCard'
-import EnpsChart from '@/components/EnpsChart'
-import SentimentChart from '@/components/SentimentChart'
+'use client';
 
-export default function Dashboard() {
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [error, setError] = useState<string | null>(null)
+import { useEffect, useState, useCallback } from 'react';
+import { apiService } from '@/lib/api';
+import { ImportFile } from '@/types';
+import { ImportList } from '@/components/imports/ImportList';
+import { FileUpload } from '@/components/shared/FileUpload';
+
+export default function Home() {
+  const [imports, setImports] = useState<ImportFile[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
+  const loadDatasets = useCallback(async (page: number = 1) => {
+    setLoading(true);
+    try {
+      const response = await apiService.getImports(page);
+      
+      if (response.data && response.data.data) {
+        setImports(response.data.data);
+      } else {
+        setImports([]);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar datasets do Rails:", error);
+      setImports([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    api.getDashboard()
-      .then(setData)
-      .catch(err => setError(err.message))
-  }, [])
-
-  if (error) return <div className="p-20 text-center text-red-500 font-bold font-sans">Erro: {error}</div>
-  if (!data) return <div className="p-20 text-center font-sans text-gray-400 animate-pulse">Carregando métricas...</div>
+    loadDatasets(currentPage);
+  }, [currentPage, loadDatasets]);
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen font-sans">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-          <StatCard 
-            title="Total Respostas" 
-            value={data.summary.total_responses} 
-            icon={<Users size={20}/>} 
-            color="blue" 
-          />
-          <StatCard 
-            title="eNPS Score" 
-            value={data.summary.enps_score} 
-            icon={<TrendingUp size={20}/>} 
-            color="purple" 
-          />
-          <StatCard 
-            title="Áreas Ativas" 
-            value={Object.keys(data.by_area).length} 
-            icon={<Activity size={20}/>} 
-            color="green" 
-          />
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className="p-4 rounded-xl bg-orange-50 text-orange-600">
-              <MessageSquare size={20} />
+    <main className="min-h-screen bg-zinc-50 p-6 lg:p-20 font-sans">
+      <div className="max-w-5xl mx-auto space-y-16">
+        
+        <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+          <div className="max-w-md">
+            <h1 className="text-6xl font-black tracking-tighter text-zinc-900 leading-tight">
+              Análise<span className="text-indigo-600">.</span>
+            </h1>
+            <p className="text-lg text-zinc-500 font-medium mt-4">
+              Importe seus arquivos CSV de pesquisa de clima e visualize os insights em tempo real.
+            </p>
+          </div>
+          
+          <div className="w-full lg:w-[420px]">
+            <FileUpload onUploadSuccess={() => loadDatasets(1)} />
+          </div>
+        </header>
+
+        <section className="space-y-8">
+          <div className="flex items-center justify-between border-b border-zinc-200 pb-4 px-2">
+            <div className="flex items-center gap-3">
+              <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse" />
+              <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-400">
+                Datasets Disponíveis
+              </h2>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">Humor Geral</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {data.sentiment_analysis?.positive > data.sentiment_analysis?.negative ? 'Positivo' : 'Alerta'}
+            {!loading && (
+              <span className="text-[10px] font-black text-zinc-300 uppercase">
+                {imports.length} Arquivo(s)
+              </span>
+            )}
+          </div>
+          
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-24 gap-4 bg-white rounded-[3rem] border border-zinc-100 shadow-sm">
+              <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+              <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+                Sincronizando com Backend...
               </p>
             </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <EnpsChart data={{
-            promoters_count: data.summary.promoters_count,
-            detractors_count: data.summary.detractors_count,
-            total_responses: data.summary.total_responses
-          }} />
-
-          {data.sentiment_analysis && (
-            <SentimentChart data={data.sentiment_analysis} />
+          ) : (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <ImportList items={imports} />
+            </div>
           )}
-        </div>
+        </section>
+
+        <footer className="pt-10 flex justify-center">
+          <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">
+            Playgroud Tech
+          </p>
+        </footer>
       </div>
-    </div>
-  )
+    </main>
+  );
 }
