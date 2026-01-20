@@ -220,6 +220,7 @@ GEM
       rspec-support (~> 3.13)
     rspec-support (3.13.6)
     securerandom (0.4.1)
+    sentimental (1.5.0)
     stringio (3.2.0)
     thor (1.5.0)
     timeout (0.6.0)
@@ -245,6 +246,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 7.1.6)
   rspec-rails
+  sentimental
   tzinfo-data
 
 RUBY VERSION

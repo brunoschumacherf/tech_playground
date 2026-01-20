@@ -17,6 +17,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://postgres:password@db:5432/tech_playground_development
+      RAILS_ENV: ${RAILS_ENV:-development}
     depends_on:
       - db
 
