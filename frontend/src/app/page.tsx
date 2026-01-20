@@ -83,7 +83,7 @@ export default function Home() {
 
         <footer className="pt-10 flex justify-center">
           <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-widest">
-            Playgroud Tech
+            Tech Playground
           </p>
         </footer>
       </div>

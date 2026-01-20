@@ -44,9 +44,10 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
     end
 
     it "retorna 404 para um ID inexistente" do
-      expect {
-        get :show, params: { id: 9999 }
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      get :show, params: { id: 9999 }
+      expect(response).to have_http_status(:not_found)
+      json = JSON.parse(response.body)
+      expect(json["error"]).to eq(I18n.t('imports.errors.not_found'))
     end
   end
 
@@ -61,7 +62,7 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
         
         json = JSON.parse(response.body)
         expect(json).to have_key("import_id")
-        expect(json["message"]).to eq('Import completed successfully')
+        expect(json["message"]).to eq(I18n.t('imports.messages.success'))
       end
     end
 
@@ -71,7 +72,7 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
         expect(response).to have_http_status(:bad_request)
         
         json = JSON.parse(response.body)
-        expect(json["error"]).to eq('No file provided')
+        expect(json["error"]).to eq(I18n.t('imports.errors.no_file'))
       end
     end
   end
