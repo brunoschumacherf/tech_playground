@@ -1,0 +1,71 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  nome: MyString
+  email: MyString
+  email_corporativo: MyString
+  celular: MyString
+  area: MyString
+  cargo: MyString
+  funcao: MyString
+  localidade: MyString
+  tempo_de_empresa: MyString
+  genero: MyString
+  geracao: MyString
+  n0_empresa: MyString
+  n1_diretoria: MyString
+  n2_gerencia: MyString
+  n3_coordenacao: MyString
+  n4_area: MyString
+  data_da_resposta: 2026-01-20 00:48:26
+  interesse_no_cargo: 1
+  comentarios_interesse: MyText
+  contribuicao: 1
+  comentarios_contribuicao: MyText
+  aprendizado_desenvolvimento: 1
+  comentarios_aprendizado: MyText
+  feedback: 1
+  comentarios_feedback: MyText
+  interacao_gestor: 1
+  comentarios_gestor: MyText
+  clareza_carreira: 1
+  comentarios_clareza: MyText
+  expectativa_permanencia: 1
+  comentarios_expectativa: MyText
+  enps: 1
+  enps_aberta: MyText
+
+two:
+  nome: MyString
+  email: MyString
+  email_corporativo: MyString
+  celular: MyString
+  area: MyString
+  cargo: MyString
+  funcao: MyString
+  localidade: MyString
+  tempo_de_empresa: MyString
+  genero: MyString
+  geracao: MyString
+  n0_empresa: MyString
+  n1_diretoria: MyString
+  n2_gerencia: MyString
+  n3_coordenacao: MyString
+  n4_area: MyString
+  data_da_resposta: 2026-01-20 00:48:26
+  interesse_no_cargo: 1
+  comentarios_interesse: MyText
+  contribuicao: 1
+  comentarios_contribuicao: MyText
+  aprendizado_desenvolvimento: 1
+  comentarios_aprendizado: MyText
+  feedback: 1
+  comentarios_feedback: MyText
+  interacao_gestor: 1
+  comentarios_gestor: MyText
+  clareza_carreira: 1
+  comentarios_clareza: MyText
+  expectativa_permanencia: 1
+  comentarios_expectativa: MyText
+  enps: 1
+  enps_aberta: MyText

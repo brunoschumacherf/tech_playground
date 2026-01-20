@@ -1,0 +1,2 @@
+class EmployeeFeedback < ApplicationRecord
+end
