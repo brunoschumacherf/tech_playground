@@ -16,7 +16,6 @@ services:
     ports:
       - "3000:3000"
     environment:
-      RAILS_ENV: development
       DATABASE_URL: postgresql://postgres:password@db:5432/tech_playground_development
     depends_on:
       - db
