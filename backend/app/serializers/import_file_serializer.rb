@@ -1,5 +1,5 @@
 class ImportFileSerializer < ActiveModel::Serializer
-  attributes :info, :summary, :by_area, :sentiment_analysis, :feedbacks, :eda, :ai_insights
+  attributes :info, :summary, :by_area, :sentiment_analysis, :feedbacks, :eda, :ai_insights, :sentiment_details
 
   def info
     {
@@ -38,6 +38,24 @@ class ImportFileSerializer < ActiveModel::Serializer
     results
   end
 
+  def sentiment_details
+    comments = object.employee_feedbacks.where.not(enps_aberta: [nil, '-', '']).pluck(:enps_aberta)
+    
+    negative_comments = comments.select { |c| SENTIMENT_ANALYZER.sentiment(c) == :negative }
+    
+    stop_words = %w[a o que e do da de um uma em para com no na por os as]
+    words = negative_comments.join(" ").downcase.scan(/\w+/)
+    top_words = words.reject { |w| stop_words.include?(w) || w.size < 4 }
+                     .group_by(&:itself)
+                     .transform_values(&:count)
+                     .sort_by { |_k, v| -v }.first(5).to_h
+
+    {
+      top_negative_terms: top_words,
+      critical_quotes: negative_comments.sample(3) # Pega 3 frases reais negativas aleatórias
+    }
+  end
+
   def eda
     scores = object.employee_feedbacks.pluck(:feedback).compact
     return {} if scores.empty?
@@ -70,7 +88,41 @@ class ImportFileSerializer < ActiveModel::Serializer
     )
   end
 
+  def ai_insights
+    area_averages = object.employee_feedbacks.group(:area).average(:feedback)
+    return nil if area_averages.empty?
+
+    worst_area_raw, worst_score = area_averages.min_by { |_, v| v }
+    best_area_raw, best_score = area_averages.max_by { |_, v| v }
+
+    worst_area = I18n.t("enums.area.#{worst_area_raw}", default: worst_area_raw.to_s.humanize)
+    best_area = I18n.t("enums.area.#{best_area_raw}", default: best_area_raw.to_s.humanize)
+
+    worst_comments = object.employee_feedbacks.where(area: worst_area_raw).pluck(:enps_aberta).compact
+    results = { positive: 0, neutral: 0, negative: 0 }
+    worst_comments.each { |t| results[SENTIMENT_ANALYZER.sentiment(t)] += 1 if t != '-' }
+    predominant_sentiment = results.max_by { |_, v| v }&.first
+
+    {
+      critical_area: worst_area,
+      score: worst_score.to_f.round(2),
+      recommendation: dynamic_recommendation(worst_area, worst_score, predominant_sentiment, best_area)
+    }
+  end
+
   private
+
+  def dynamic_recommendation(area, score, sentiment, benchmark_area)
+    if score < 3.0
+      "Alerta Crítico: #{area} está com média #{score}. O sentimento predominante é #{sentiment}. Recomenda-se intervenção imediata do RH e revisão do modelo de gestão comparando com #{benchmark_area}."
+    elsif sentiment == :negative
+      "Risco de Turnover: Apesar da média #{score}, os comentários em #{area} são majoritariamente negativos. Focar em escuta ativa e revisão de benefícios/clima."
+    elsif score < 4.0
+      "Plano de Desenvolvimento: #{area} apresenta estabilidade, mas está abaixo do benchmark (#{benchmark_area}). Sugere-se treinamentos técnicos e maior clareza na trilha de carreira."
+    else
+      "Manutenção de Performance: #{area} performa bem, mas é a menor do grupo. Manter rotina de 1:1s e reconhecimentos públicos para evitar estagnação."
+    end
+  end
 
   def calculate_enps(scope)
     p = scope.where(enps: 9..10).count

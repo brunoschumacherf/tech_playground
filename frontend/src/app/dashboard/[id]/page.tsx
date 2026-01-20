@@ -86,11 +86,17 @@ export default function DashboardPage() {
         </section>
 
         {data.ai_insights && (
-          <section className="bg-gradient-to-r from-indigo-600 to-violet-700 p-10 rounded-[3rem] text-white shadow-xl relative overflow-hidden border-4 border-white/10">
-            <div className="relative z-10">
+          <section className="bg-gradient-to-br from-zinc-900 via-indigo-950 to-zinc-900 p-12 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border border-white/5">
+            <div className="relative z-10 space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.4em] mb-4 text-indigo-200">Creative Exploration</p>
-              <h2 className="text-3xl font-black tracking-tight mb-2">Plano Sugerido: <span className="italic">{data.ai_insights.critical_area}</span></h2>
-              <p className="text-lg font-medium text-indigo-50 max-w-3xl leading-relaxed">{data.ai_insights.recommendation}</p>
+              <h2 className="text-3xl font-black tracking-tight mb-2">Estratégia: <span className="text-indigo-400 italic">{data.ai_insights.critical_area}</span></h2>
+              <p className="text-lg font-medium text-zinc-300 max-w-4xl leading-relaxed">{data.ai_insights.recommendation}</p>
+              <div className="pt-4 flex gap-6">
+                <div className="bg-white/5 px-6 py-3 rounded-2xl border border-white/10">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase">Score</p>
+                  <p className="text-xl font-black">{data.ai_insights.score} / 5.0</p>
+                </div>
+              </div>
             </div>
           </section>
         )}
@@ -98,21 +104,46 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <section className="lg:col-span-2 bg-white p-10 rounded-[3rem] border border-zinc-100 shadow-sm">
             <div className="mb-8">
-              <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Satisfação por Área</h2>
-              <p className="text-zinc-400 font-medium text-sm italic">Média de feedback por setor</p>
+              <h2 className="text-2xl font-black text-zinc-900 tracking-tight underline decoration-indigo-500 decoration-4">Áreas & Departamentos</h2>
             </div>
             <MainChart data={data.by_area} />
           </section>
 
-          <section className="bg-zinc-900 p-10 rounded-[3rem] text-white shadow-xl flex flex-col items-center justify-center">
+          <section className="bg-zinc-900 p-10 rounded-[3rem] text-white shadow-xl flex flex-col items-center">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-8">Clima Semântico</h3>
             <SentimentChart data={data.sentiment_analysis} />
+            
+            {data.sentiment_details && (
+              <div className="mt-8 pt-8 border-t border-zinc-800 w-full space-y-6">
+                <div>
+                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-4 text-center">Keywords Negativas</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {Object.entries(data.sentiment_details.top_negative_terms).map(([word, count]: any) => (
+                      <span key={word} className="px-3 py-1 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-lg text-[10px] font-bold uppercase">
+                        {word} ({count}x)
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center">Voz do Colaborador</p>
+                  {data.sentiment_details.critical_quotes.map((quote: string, i: number) => (
+                    <div key={i} className="bg-white/5 p-4 rounded-2xl italic text-[11px] text-zinc-400 border-l-2 border-rose-500 leading-relaxed">
+                      "{quote}"
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         </div>
 
         <section className="space-y-6">
           <div className="flex items-center justify-between px-6">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400 italic">Feedbacks Detalhados</h3>
+            <span className="text-[10px] font-black bg-white border border-zinc-200 text-zinc-400 px-4 py-2 rounded-full uppercase">
+              {data.feedbacks.length} Entradas
+            </span>
           </div>
           <FeedbackTable data={data.feedbacks} isLoading={loading} onSelectFeedback={(fb) => setSelectedFeedback(fb)} />
         </section>
