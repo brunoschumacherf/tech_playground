@@ -9,6 +9,7 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 # return unless Rails.env.test?
 require 'rspec/rails'
 require 'shoulda/matchers'
+require 'active_job/test_helper'
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -44,6 +45,7 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
   config.include FactoryBot::Syntax::Methods
+  config.include ActiveJob::TestHelper
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false
 
