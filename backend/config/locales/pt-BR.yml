@@ -6,6 +6,7 @@ pt-BR:
       not_found: "Dataset não encontrado"
     messages:
       success: "Importação concluída com sucesso"
+      processing_started: "Processamento iniciado"
   enums:
     area:
       administrative: "Administrativo"

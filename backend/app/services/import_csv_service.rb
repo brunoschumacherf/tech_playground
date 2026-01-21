@@ -41,6 +41,7 @@ class ImportCsvService
           enps_aberta: row['[Aberta] eNPS']
         )
       end
+      import_file_record.update!(status: :completed)
     end
   end
 end

@@ -21,7 +21,7 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
       expect(response).to have_http_status(:not_found)
       
       json = JSON.parse(response.body)
-      expect(json["error"]).to eq("Dataset não encontrado")
+      expect(json["error"]).to eq(I18n.t('imports.errors.not_found'))
     end
   end
 
@@ -36,7 +36,7 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
 
     it "cria um novo import" do
       post :create, params: { file: file }
-      expect(response).to have_http_status(:created)
+      expect(response).to have_http_status(:accepted)
     end
 
     it "retorna erro se o arquivo estiver ausente" do

@@ -5,6 +5,7 @@ class ImportFileSerializer < ActiveModel::Serializer
     {
       id: object.id,
       name: object.name,
+      status: object.status,
       created_at: object.created_at
     }
   end

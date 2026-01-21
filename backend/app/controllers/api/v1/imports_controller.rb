@@ -9,25 +9,20 @@ class Api::V1::ImportsController < ApplicationController
 
   def create
     file = params[:file]
-    if file.blank? || !file.respond_to?(:original_filename)
-      return render json: { error: I18n.t('imports.errors.no_file') }, status: :bad_request
-    end
+    return render json: { error: I18n.t('imports.errors.no_file') }, status: :bad_request if file.blank?
 
-    import_file = ImportFile.new(name: file.original_filename)
+    import_file = ImportFile.new(name: file.original_filename, status: :processing)
 
     if import_file.save
-      begin
-        ImportCsvService.call(file.path, import_file)
-        render json: { 
-          message: I18n.t('imports.messages.success'), 
-          import_id: import_file.id 
-        }, status: :created
-      rescue => e
-        import_file.destroy
-        render json: { 
-          error: I18n.t('imports.errors.import_failed', message: e.message) 
-        }, status: :unprocessable_entity
-      end
+      temp_path = Rails.root.join('tmp', "#{SecureRandom.uuid}-#{file.original_filename}")
+      File.open(temp_path, 'wb') { |f| f.write(file.read) }
+
+      ImportCsvJob.perform_later(import_file.id, temp_path.to_s)
+
+      render json: { 
+        message: I18n.t('imports.messages.processing_started'), 
+        import_id: import_file.id 
+      }, status: :accepted
     else
       render json: { error: import_file.errors.full_messages }, status: :unprocessable_entity
     end

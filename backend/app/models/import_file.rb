@@ -8,6 +8,8 @@ class ImportFile < ApplicationRecord
     employee_feedbacks.count
   end
 
+  enum status: { processing: 0, completed: 1, failed: 2 }
+
   private
 
   def must_be_csv_file

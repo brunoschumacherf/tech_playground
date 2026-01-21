@@ -58,11 +58,11 @@ RSpec.describe Api::V1::ImportsController, type: :controller do
           post :create, params: { file: csv_fixture }
         }.to change(ImportFile, :count).by(1)
         
-        expect(response).to have_http_status(:created)
+        expect(response).to have_http_status(:accepted)
         
         json = JSON.parse(response.body)
         expect(json).to have_key("import_id")
-        expect(json["message"]).to eq(I18n.t('imports.messages.success'))
+        expect(json["message"]).to eq(I18n.t('imports.messages.processing_started'))
       end
     end
 

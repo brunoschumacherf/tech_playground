@@ -1,6 +1,7 @@
 export interface ImportFile {
   id: number;
   name: string;
+  status: string;
   created_at: string;
   feedbacks_count?: number;
 }

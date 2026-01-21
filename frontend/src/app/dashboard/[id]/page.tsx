@@ -36,6 +36,13 @@ export default function DashboardPage() {
     loadData();
   }, [loadData]);
 
+  useEffect(() => {
+    if (data?.info?.status === 'processing') {
+      const interval = setInterval(loadData, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [data, loadData]);
+
   if (loading || !data) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-50 font-sans">
@@ -50,7 +57,7 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-zinc-50 p-6 lg:p-12 font-sans antialiased">
       <div className="max-w-7xl mx-auto space-y-10">
-        
+
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-zinc-200 pb-10">
           <div>
             <nav className="flex items-center gap-2 text-zinc-400 mb-4 text-[10px] font-black uppercase tracking-widest no-print">
@@ -61,9 +68,12 @@ export default function DashboardPage() {
             <h1 className="text-6xl font-black text-zinc-900 tracking-tighter leading-none uppercase italic">
               {data.info.name}
             </h1>
-            <p className="text-zinc-500 font-bold mt-4 tracking-tight">
-              {new Date(data.info.created_at).toLocaleDateString('pt-BR')} • {data.summary.total_responses} Respostas
-            </p>
+            <div className="flex items-center gap-4 mt-4">
+              <p className="text-zinc-500 font-bold tracking-tight">
+                {new Date(data.info.created_at).toLocaleDateString('pt-BR')} • {data.summary.total_responses} Respostas
+              </p>
+              <StatusBadge status={data.info.status} />
+            </div>
           </div>
 
           <div className="flex gap-4 no-print">
@@ -112,7 +122,7 @@ export default function DashboardPage() {
           <section className="bg-zinc-900 p-10 rounded-[3rem] text-white shadow-xl flex flex-col items-center">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-8">Clima Semântico</h3>
             <SentimentChart data={data.sentiment_analysis} />
-            
+
             {data.sentiment_details && (
               <div className="mt-8 pt-8 border-t border-zinc-800 w-full space-y-6">
                 <div>
@@ -175,5 +185,19 @@ function EDACard({ label, value, description, icon }: any) {
       </div>
       <div className="text-3xl font-black text-zinc-100 group-hover:text-indigo-50">{icon}</div>
     </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const config: any = {
+    processing: { label: 'Processando', class: 'bg-amber-100 text-amber-700 animate-pulse' },
+    completed: { label: 'Concluído', class: 'bg-emerald-100 text-emerald-700' },
+    failed: { label: 'Erro', class: 'bg-rose-100 text-rose-700' }
+  };
+  const current = config[status] || config.processing;
+  return (
+    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${current.class}`}>
+      {current.label}
+    </span>
   );
 }
