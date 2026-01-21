@@ -1,5 +1,5 @@
 class ImportFileSerializer < ActiveModel::Serializer
-  attributes :info, :summary, :by_area, :sentiment_analysis, :feedbacks, :eda, :ai_insights, :sentiment_details
+  attributes :info, :summary, :by_area, :sentiment_analysis, :eda, :ai_insights, :sentiment_details
 
   def info
     {
@@ -53,7 +53,7 @@ class ImportFileSerializer < ActiveModel::Serializer
 
     {
       top_negative_terms: top_words,
-      critical_quotes: negative_comments.sample(3) # Pega 3 frases reais negativas aleatórias
+      critical_quotes: negative_comments.sample(3)
     }
   end
 

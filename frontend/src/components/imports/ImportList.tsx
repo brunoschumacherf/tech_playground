@@ -7,6 +7,20 @@ interface ImportListProps {
   items: ImportFile[];
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const config: any = {
+    processing: { label: 'Processando', class: 'bg-amber-100 text-amber-700 animate-pulse' },
+    completed: { label: 'Pronto', class: 'bg-emerald-100 text-emerald-700' },
+    failed: { label: 'Erro', class: 'bg-rose-100 text-rose-700' }
+  };
+  const current = config[status] || config.processing;
+  return (
+    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide ml-2 ${current.class}`}>
+      {current.label}
+    </span>
+  );
+}
+
 export function ImportList({ items }: ImportListProps) {
   if (items.length === 0) {
     return (
@@ -19,8 +33,8 @@ export function ImportList({ items }: ImportListProps) {
   return (
     <div className="grid grid-cols-1 gap-4">
       {items.map((item) => (
-        <div 
-          key={item.id} 
+        <div
+          key={item.id}
           className="group flex items-center justify-between p-6 bg-white border border-zinc-100 rounded-[2rem] shadow-sm hover:shadow-md transition-all"
         >
           <div className="flex items-center gap-5">
@@ -28,7 +42,10 @@ export function ImportList({ items }: ImportListProps) {
               📊
             </div>
             <div>
-              <h3 className="font-bold text-zinc-900 text-lg">{item.name}</h3>
+              <div className="flex items-center">
+                <h3 className="font-bold text-zinc-900 text-lg">{item.name}</h3>
+                <StatusBadge status={item.status} />
+              </div>
               <div className="flex gap-3 text-xs text-zinc-400 font-semibold mt-1">
                 <span>📅 {new Date(item.created_at).toLocaleDateString()}</span>
                 <span>👥 {item.feedbacks_count} feedbacks</span>
@@ -36,11 +53,18 @@ export function ImportList({ items }: ImportListProps) {
             </div>
           </div>
 
-          <Link 
+          <Link
             href={`/dashboard/${item.id}`}
-            className="bg-zinc-900 text-white px-8 py-3 rounded-full font-bold text-sm hover:bg-indigo-600 transition-colors shadow-lg shadow-zinc-200"
+            className="flex items-center gap-2 bg-zinc-900 text-white px-8 py-3 rounded-full font-bold text-sm hover:bg-indigo-600 transition-colors shadow-lg shadow-zinc-200"
           >
-            Abrir Dashboard
+            {item.status === 'processing' ? (
+              <>
+                <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Aguarde...
+              </>
+            ) : (
+              'Abrir Dashboard'
+            )}
           </Link>
         </div>
       ))}

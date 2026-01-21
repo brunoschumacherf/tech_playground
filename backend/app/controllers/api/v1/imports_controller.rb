@@ -1,6 +1,8 @@
 class Api::V1::ImportsController < ApplicationController
   def index
-    @imports = ImportFile.all.order(created_at: :desc).page(params[:page]).per(10)
+    @imports = ImportFile.all.order(created_at: :desc)
+    @imports = @imports.where("name ILIKE ?", "%#{params[:query]}%") if params[:query].present?
+    @imports = @imports.page(params[:page]).per(10)
     render json: {
       data: @imports.as_json(methods: :feedbacks_count),
       meta: pagination_meta(@imports)

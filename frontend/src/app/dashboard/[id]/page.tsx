@@ -19,6 +19,12 @@ export default function DashboardPage() {
   const [selectedFeedback, setSelectedFeedback] = useState<EmployeeFeedback | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const [feedbacks, setFeedbacks] = useState<EmployeeFeedback[]>([]);
+  const [feedbacksLoading, setFeedbacksLoading] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalFeedbacks, setTotalFeedbacks] = useState<number>(0);
+
   const loadData = useCallback(async () => {
     if (!importId) return;
     setLoading(true);
@@ -32,16 +38,40 @@ export default function DashboardPage() {
     }
   }, [importId]);
 
+  const loadFeedbacks = useCallback(async (page: number) => {
+    if (!importId) return;
+    setFeedbacksLoading(true);
+    try {
+      const response = await apiService.getFeedbacks(importId, page);
+      if (response.data && response.data.data) {
+        setFeedbacks(response.data.data);
+        setTotalPages(response.data.meta.total_pages);
+        setTotalFeedbacks(response.data.meta.total_count);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar feedbacks:", error);
+    } finally {
+      setFeedbacksLoading(false);
+    }
+  }, [importId]);
+
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   useEffect(() => {
+    loadFeedbacks(currentPage);
+  }, [loadFeedbacks, currentPage]);
+
+  useEffect(() => {
     if (data?.info?.status === 'processing') {
-      const interval = setInterval(loadData, 3000);
+      const interval = setInterval(() => {
+        loadData();
+        loadFeedbacks(currentPage);
+      }, 3000);
       return () => clearInterval(interval);
     }
-  }, [data, loadData]);
+  }, [data, loadData, loadFeedbacks, currentPage]);
 
   if (loading || !data) {
     return (
@@ -148,14 +178,37 @@ export default function DashboardPage() {
           </section>
         </div>
 
-        <section className="space-y-6">
+        <section className="space-y-6 no-print">
           <div className="flex items-center justify-between px-6">
             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-zinc-400 italic">Feedbacks Detalhados</h3>
             <span className="text-[10px] font-black bg-white border border-zinc-200 text-zinc-400 px-4 py-2 rounded-full uppercase">
-              {data.feedbacks.length} Entradas
+              {totalFeedbacks} Entradas
             </span>
           </div>
-          <FeedbackTable data={data.feedbacks} isLoading={loading} onSelectFeedback={(fb) => setSelectedFeedback(fb)} />
+
+          <FeedbackTable data={feedbacks} isLoading={feedbacksLoading} onSelectFeedback={(fb) => setSelectedFeedback(fb)} />
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-4 pt-4">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1 || feedbacksLoading}
+                className="px-4 py-2 text-xs font-bold uppercase tracking-widest bg-white border border-zinc-200 rounded-full disabled:opacity-50 hover:bg-zinc-50 transition-colors"
+              >
+                Anterior
+              </button>
+              <span className="text-xs font-black text-zinc-400">
+                Página {currentPage} de {totalPages}
+              </span>
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages || feedbacksLoading}
+                className="px-4 py-2 text-xs font-bold uppercase tracking-widest bg-white border border-zinc-200 rounded-full disabled:opacity-50 hover:bg-zinc-50 transition-colors"
+              >
+                Próxima
+              </button>
+            </div>
+          )}
         </section>
 
         {selectedFeedback && <FeedbackDetailsModal feedback={selectedFeedback} onClose={() => setSelectedFeedback(null)} />}
